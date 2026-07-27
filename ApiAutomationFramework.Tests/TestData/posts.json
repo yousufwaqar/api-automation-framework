@@ -1,0 +1,9 @@
+﻿{
+  "validPostIds": [ 1, 2, 3, 4, 5 ],
+  "invalidPostIds": [ 99999, 999999 ],
+  "samplePost": {
+    "title": "Test Post",
+    "body": "This is a test post body",
+    "userId": 1
+  }
+}

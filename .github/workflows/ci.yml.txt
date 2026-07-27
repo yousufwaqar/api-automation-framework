@@ -1,0 +1,142 @@
+name: API Automation Framework CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Test environment'
+        required: true
+        default: 'Development'
+        type: choice
+        options:
+          - Development
+          - Staging
+
+env:
+  DOTNET_VERSION: '9.0.x'
+  TEST_ENVIRONMENT: ${{ github.event.inputs.environment || 'Development' }}
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+      - name: Restore
+        run: dotnet restore
+        working-directory: ./ApiAutomationFramework.Tests
+      - name: Build
+        run: dotnet build --no-restore --configuration Release
+        working-directory: ./ApiAutomationFramework.Tests
+      - name: Upload build
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: ./ApiAutomationFramework.Tests/bin/Release/
+          retention-days: 1
+
+  smoke-tests:
+    name: Smoke Tests
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+      - name: Restore
+        run: dotnet restore
+        working-directory: ./ApiAutomationFramework.Tests
+      - name: Run Smoke Tests
+        run: |
+          dotnet test \
+            --no-restore \
+            --configuration Release \
+            --logger "trx;LogFileName=smoke-results.trx" \
+            --logger "console;verbosity=detailed" \
+            --results-directory ./TestResults \
+            -- Reqnroll.Filter="@smoke"
+        working-directory: ./ApiAutomationFramework.Tests
+        env:
+          TEST_ENVIRONMENT: ${{ env.TEST_ENVIRONMENT }}
+        timeout-minutes: 10
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: smoke-test-results
+          path: ./ApiAutomationFramework.Tests/TestResults/
+          retention-days: 30
+
+  regression-tests:
+    name: Regression Tests
+    needs: smoke-tests
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+    strategy:
+      matrix:
+        test-group: [users, posts, auth]
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+      - name: Restore
+        run: dotnet restore
+        working-directory: ./ApiAutomationFramework.Tests
+      - name: Run ${{ matrix.test-group }} Tests
+        run: |
+          dotnet test \
+            --no-restore \
+            --configuration Release \
+            --logger "trx;LogFileName=${{ matrix.test-group }}-results.trx" \
+            --results-directory ./TestResults \
+            -- Reqnroll.Filter="@${{ matrix.test-group }}"
+        working-directory: ./ApiAutomationFramework.Tests
+        env:
+          TEST_ENVIRONMENT: ${{ env.TEST_ENVIRONMENT }}
+        timeout-minutes: 20
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ${{ matrix.test-group }}-results
+          path: ./ApiAutomationFramework.Tests/TestResults/
+          retention-days: 30
+      - name: Upload logs
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ${{ matrix.test-group }}-logs
+          path: ./ApiAutomationFramework.Tests/Reports/
+          retention-days: 30
+
+  report:
+    name: Generate Report
+    needs: [smoke-tests, regression-tests]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./all-results
+      - name: Summary
+        run: |
+          echo "## Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "| Stage | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Smoke Tests | ${{ needs.smoke-tests.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Regression Tests | ${{ needs.regression-tests.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "**Environment:** ${{ env.TEST_ENVIRONMENT }}" >> $GITHUB_STEP_SUMMARY

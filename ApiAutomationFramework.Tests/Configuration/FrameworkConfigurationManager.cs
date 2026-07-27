@@ -1,0 +1,51 @@
+﻿using Microsoft.Extensions.Configuration;
+using Serilog;
+
+namespace ApiAutomationFramework.Configuration;
+
+public interface IConfigurationManager
+{
+    AppSettings Settings { get; }
+    string GetEnvironment();
+    ApiEndpointConfig GetApiConfig(string apiName);
+}
+
+public class FrameworkConfigurationManager : IConfigurationManager
+{
+    private static readonly Lazy<FrameworkConfigurationManager> _instance =
+        new(() => new FrameworkConfigurationManager());
+
+    public static FrameworkConfigurationManager Instance => _instance.Value;
+
+    private readonly AppSettings _settings;
+
+    private FrameworkConfigurationManager()
+    {
+        var environment = System.Environment.GetEnvironmentVariable("TEST_ENVIRONMENT")
+                         ?? "Development";
+
+        var configuration = new ConfigurationBuilder()
+            .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
+            .AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: false)
+            .AddEnvironmentVariables()
+            .Build();
+
+        _settings = new AppSettings();
+        configuration.Bind(_settings);
+    }
+
+    public AppSettings Settings => _settings;
+
+    public string GetEnvironment() => _settings.Environment;
+
+    public ApiEndpointConfig GetApiConfig(string apiName)
+    {
+        return apiName switch
+        {
+            "ReqRes" => _settings.ApiSettings.ReqRes,
+            "JsonPlaceholder" => _settings.ApiSettings.JsonPlaceholder,
+            _ => throw new ArgumentException($"Unknown API: {apiName}")
+        };
+    }
+}

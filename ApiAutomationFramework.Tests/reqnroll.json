@@ -1,0 +1,15 @@
+{
+  "$schema": "https://reqnroll.net/reqnroll-json-schema.json",
+  "language": {
+    "feature": "en"
+  },
+  "trace": {
+    "traceSuccessfulSteps": true,
+    "traceTimings": true,
+    "coloredOutput": true
+  },
+  "generator": {
+    "allowDebugGeneratedFiles": false,
+    "allowRowTests": true
+  }
+}

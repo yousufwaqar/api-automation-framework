@@ -1,0 +1,17 @@
+{
+  "validUsers": [
+    {
+      "id": 2,
+      "expectedFirstName": "Janet",
+      "expectedLastName": "Weaver",
+      "expectedEmail": "janet.weaver@reqres.in"
+    },
+    {
+      "id": 1,
+      "expectedFirstName": "George",
+      "expectedLastName": "Bluth",
+      "expectedEmail": "george.bluth@reqres.in"
+    }
+  ],
+  "invalidUserIds": [ 0, -1, 99999 ]
+}
