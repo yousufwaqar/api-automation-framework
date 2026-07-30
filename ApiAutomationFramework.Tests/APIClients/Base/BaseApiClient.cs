@@ -29,7 +29,7 @@ public abstract class BaseApiClient : IApiClient
 
         var options = new RestClientOptions(config.BaseUrl)
         {
-            MaxTimeout = (int)config.Timeout.TotalMilliseconds,
+            Timeout = config.Timeout,   
             FollowRedirects = true,
             ThrowOnAnyError = false,
             ThrowOnDeserializationError = false

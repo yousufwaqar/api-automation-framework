@@ -2,10 +2,12 @@
 using ApiAutomationFramework.APIClients.Interfaces;
 using ApiAutomationFramework.Configuration;
 using ApiAutomationFramework.Helpers;
+using ApiAutomationFramework.Helpers.Facades;
+using ApiAutomationFramework.Helpers.Factories;
+using ApiAutomationFramework.Helpers.Selectors;
 using ApiAutomationFramework.Utilities;
 using Reqnroll;
 using Reqnroll.BoDi;
-
 namespace ApiAutomationFramework.Hooks;
 
 [Binding]
@@ -17,39 +19,56 @@ public class DependencyInjectionHooks
         // Setup logging first
         LoggingUtility.ConfigureSerilog();
 
-        // Configuration - register as singleton instances
+        // Configuration
         var configManager = FrameworkConfigurationManager.Instance;
         container.RegisterInstanceAs<IConfigurationManager>(configManager);
-        container.RegisterInstanceAs(configManager.Settings);
 
-        // Register RetryHelper as an INSTANCE (not type)
-        // This prevents BoDi from trying to resolve int parameters in constructor
+        var settings = configManager.Settings;
+        container.RegisterInstanceAs(settings);
+
+        // RetryHelper
         var retryHelper = new RetryHelper(
-            configManager.Settings.ApiSettings.ReqRes.RetryCount,
-            configManager.Settings.ApiSettings.ReqRes.RetryDelayMilliseconds);
+            settings.ApiSettings.ReqRes.RetryCount,
+            settings.ApiSettings.ReqRes.RetryDelayMilliseconds);
         container.RegisterInstanceAs(retryHelper);
 
-        // Helpers - register as instances to avoid DI resolution issues
+        // Helpers
         container.RegisterInstanceAs(new JsonHelper());
         container.RegisterInstanceAs(new RandomDataGenerator());
         container.RegisterInstanceAs(new SchemaValidator());
         container.RegisterInstanceAs(new ResponseValidator());
         container.RegisterInstanceAs(new TokenGenerator());
 
+        // ═══════════════════════════════════════════════════════
+        // Factory Pattern - Create BEFORE it's used
+        // ═══════════════════════════════════════════════════════
+        var testDataFactory = new TestDataFactory();
+        container.RegisterInstanceAs<ITestDataFactory>(testDataFactory);
+
         // Environment Manager
         container.RegisterInstanceAs<IEnvironmentManager>(
             new EnvironmentManager(configManager));
 
-        // API Clients - register as INSTANCES so BoDi doesn't try to construct them
-        var userApiClient = new UserApiClient(configManager.Settings, retryHelper);
+        // API Clients
+        var userApiClient = new UserApiClient(settings, retryHelper);
         container.RegisterInstanceAs<IUserApiClient>(userApiClient);
 
-        var postApiClient = new PostApiClient(configManager.Settings, retryHelper);
+        var postApiClient = new PostApiClient(settings, retryHelper);
         container.RegisterInstanceAs<IPostApiClient>(postApiClient);
+
+        // ═══════════════════════════════════════════════════════
+        // Selectors
+        // ═══════════════════════════════════════════════════════
+        container.RegisterInstanceAs(new ResponseSelector());
+
+        // ═══════════════════════════════════════════════════════
+        // Facade Pattern - Now testDataFactory exists
+        // ═══════════════════════════════════════════════════════
+        var facade = new ApiTestFacade(userApiClient, postApiClient, testDataFactory);
+        container.RegisterInstanceAs(facade);
 
         // Report utility
         container.RegisterInstanceAs(new ReportUtility());
-
         Serilog.Log.Information("DI container configured successfully.");
     }
 }
