@@ -1,4 +1,4 @@
-﻿using ApiAutomationFramework.APIClients.Interfaces;
+using ApiAutomationFramework.APIClients.Interfaces;
 using ApiAutomationFramework.DTOs.Request;
 using ApiAutomationFramework.DTOs.Response;
 using ApiAutomationFramework.Helpers.Factories;
@@ -45,6 +45,12 @@ public class ApiTestFacade
         var createResponse = await _userApiClient.CreateUserAsync(createRequest);
         result.CreateStatusCode = (int)createResponse.StatusCode;
         result.CreatedUserId = createResponse.Data?.Id;
+        
+        int userId = 2; // Default fallback
+        if (createResponse.Data?.Id != null && int.TryParse(createResponse.Data.Id, out var parsedId))
+        {
+            userId = parsedId;
+        }
 
         // Step 2: Update user
         var updateRequest = new UpdateUserRequest
@@ -52,11 +58,11 @@ public class ApiTestFacade
             Name = createRequest.Name + " Updated",
             Job = "Senior " + createRequest.Job
         };
-        var updateResponse = await _userApiClient.UpdateUserAsync(2, updateRequest);
+        var updateResponse = await _userApiClient.UpdateUserAsync(userId, updateRequest);
         result.UpdateStatusCode = (int)updateResponse.StatusCode;
 
         // Step 3: Delete user
-        var deleteResponse = await _userApiClient.DeleteUserAsync(2);
+        var deleteResponse = await _userApiClient.DeleteUserAsync(userId);
         result.DeleteStatusCode = (int)deleteResponse.StatusCode;
 
         result.AllOperationsSuccessful =

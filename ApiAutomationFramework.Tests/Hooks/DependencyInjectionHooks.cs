@@ -1,4 +1,4 @@
-﻿using ApiAutomationFramework.APIClients;
+using ApiAutomationFramework.APIClients;
 using ApiAutomationFramework.APIClients.Interfaces;
 using ApiAutomationFramework.Configuration;
 using ApiAutomationFramework.Helpers;
@@ -16,15 +16,15 @@ public class DependencyInjectionHooks
     [BeforeTestRun]
     public static void RegisterDependencies(IObjectContainer container)
     {
-        // Setup logging first
-        LoggingUtility.ConfigureSerilog();
-
         // Configuration
-        var configManager = FrameworkConfigurationManager.Instance;
+        var configManager = new FrameworkConfigurationManager();
         container.RegisterInstanceAs<IConfigurationManager>(configManager);
 
         var settings = configManager.Settings;
         container.RegisterInstanceAs(settings);
+
+        // Setup logging first
+        LoggingUtility.ConfigureSerilog(settings);
 
         // RetryHelper
         var retryHelper = new RetryHelper(
@@ -37,7 +37,7 @@ public class DependencyInjectionHooks
         container.RegisterInstanceAs(new RandomDataGenerator());
         container.RegisterInstanceAs(new SchemaValidator());
         container.RegisterInstanceAs(new ResponseValidator());
-        container.RegisterInstanceAs(new TokenGenerator());
+        container.RegisterInstanceAs(new TokenStore());
 
         // ═══════════════════════════════════════════════════════
         // Factory Pattern - Create BEFORE it's used

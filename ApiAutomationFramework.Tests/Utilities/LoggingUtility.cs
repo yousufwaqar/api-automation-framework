@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Threading;
 using ApiAutomationFramework.Configuration;
@@ -12,7 +12,7 @@ public static class LoggingUtility
     private static bool _isConfigured = false;
     private static readonly object _lock = new();
 
-    public static void ConfigureSerilog()
+    public static void ConfigureSerilog(AppSettings settings)
     {
         if (_isConfigured) return;
 
@@ -20,7 +20,6 @@ public static class LoggingUtility
         {
             if (_isConfigured) return;
 
-            var settings = FrameworkConfigurationManager.Instance.Settings;
             var reportsDir = settings.Reporting.OutputDirectory;
             var logsDir = Path.Combine(reportsDir, "Logs");
 
@@ -32,7 +31,6 @@ public static class LoggingUtility
                 .MinimumLevel.Override("System", LogEventLevel.Warning)
                 .Enrich.FromLogContext()
                 .Enrich.WithProperty("MachineName", Environment.MachineName)
-                .Enrich.WithProperty("ThreadId", Thread.CurrentThread.ManagedThreadId)
                 .WriteTo.Console(
                     outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}")
                 .WriteTo.File(

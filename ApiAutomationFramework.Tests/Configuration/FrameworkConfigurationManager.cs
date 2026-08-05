@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration;
 using Serilog;
 
 namespace ApiAutomationFramework.Configuration;
@@ -12,14 +12,9 @@ public interface IConfigurationManager
 
 public class FrameworkConfigurationManager : IConfigurationManager
 {
-    private static readonly Lazy<FrameworkConfigurationManager> _instance =
-        new(() => new FrameworkConfigurationManager());
-
-    public static FrameworkConfigurationManager Instance => _instance.Value;
-
     private readonly AppSettings _settings;
 
-    private FrameworkConfigurationManager()
+    public FrameworkConfigurationManager()
     {
         var environment = System.Environment.GetEnvironmentVariable("TEST_ENVIRONMENT")
                          ?? "Development";
