@@ -174,7 +174,7 @@ public class PostStepDefinitions
     public void ThenCreatedPostShouldHaveId()
     {
         var response = GetStoredResponse();
-        var post = _jsonHelper.Deserialize<CreatePostResponse>(response.Content!);
+        var post = _jsonHelper.Deserialize<PostResponse>(response.Content!);
         post!.Id.Should().BeGreaterThan(0);
         _scenarioContext[ScenarioContextKeys.CreatedPostId] = post.Id;
     }
@@ -183,7 +183,7 @@ public class PostStepDefinitions
     public void ThenCreatedPostTitleShouldMatchRequestTitle()
     {
         var response = GetStoredResponse();
-        var post = _jsonHelper.Deserialize<CreatePostResponse>(response.Content!);
+        var post = _jsonHelper.Deserialize<PostResponse>(response.Content!);
 
         if (_scenarioContext.TryGetValue(ScenarioContextKeys.ExpectedPostTitle, out string? title))
         {

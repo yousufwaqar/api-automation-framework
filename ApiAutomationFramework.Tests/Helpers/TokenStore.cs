@@ -1,17 +1,17 @@
-﻿using ApiAutomationFramework.DTOs.Response;
+using ApiAutomationFramework.DTOs.Response;
 using Serilog;
 
 namespace ApiAutomationFramework.Helpers;
 
-public class TokenGenerator
+public class TokenStore
 {
     private string? _cachedToken;
     private DateTime _tokenExpiry = DateTime.MinValue;
     private readonly ILogger _logger;
 
-    public TokenGenerator()
+    public TokenStore()
     {
-        _logger = Log.ForContext<TokenGenerator>();
+        _logger = Log.ForContext<TokenStore>();
     }
 
     public string GetToken()

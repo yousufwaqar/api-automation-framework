@@ -15,7 +15,7 @@ public class AuthenticationStepDefinitions
 {
     private readonly IUserApiClient _userApiClient;
     private readonly ScenarioContext _scenarioContext;
-    private readonly TokenGenerator _tokenGenerator;
+    private readonly TokenStore _tokenGenerator;
     private readonly JsonHelper _jsonHelper;
     private readonly ILogger _logger;
 
@@ -24,7 +24,7 @@ public class AuthenticationStepDefinitions
     public AuthenticationStepDefinitions(
         IUserApiClient userApiClient,
         ScenarioContext scenarioContext,
-        TokenGenerator tokenGenerator,
+        TokenStore tokenGenerator,
         JsonHelper jsonHelper)
     {
         _userApiClient = userApiClient;

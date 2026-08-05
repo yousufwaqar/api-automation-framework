@@ -1,4 +1,4 @@
-﻿using Polly;
+using Polly;
 using Polly.Retry;
 using RestSharp;
 using Serilog;
@@ -48,7 +48,11 @@ public class RetryHelper
             .WaitAndRetryAsync(
                 retryCount: _retryCount,
                 sleepDurationProvider: attempt =>
-                    TimeSpan.FromMilliseconds(_delayMilliseconds * Math.Pow(2, attempt - 1)),
+                {
+                    var baseDelay = TimeSpan.FromMilliseconds(_delayMilliseconds * Math.Pow(2, attempt - 1));
+                    var jitter = TimeSpan.FromMilliseconds(Random.Shared.Next(0, 200));
+                    return baseDelay + jitter;
+                },
                 onRetry: (outcome, delay, attempt, context) =>
                 {
                     _logger.Warning("Retry {Attempt}/{Max} after {Delay}ms",
