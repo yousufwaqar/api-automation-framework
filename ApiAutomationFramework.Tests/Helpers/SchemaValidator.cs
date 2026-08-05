@@ -1,4 +1,4 @@
-﻿using NJsonSchema;
+using NJsonSchema;
 using NJsonSchema.Generation;
 using Serilog;
 
@@ -57,9 +57,8 @@ public class SchemaValidator
         }
         catch (Exception ex)
         {
-            _logger.Warning(ex, "Schema generation/validation failed for {Type}", typeof(T).Name);
-            // Return true if schema generation itself fails - don't fail the test
-            return true;
+            _logger.Error(ex, "Schema generation/validation failed for {Type}", typeof(T).Name);
+            throw; // Fail the test instead of returning true to avoid false positives
         }
     }
 

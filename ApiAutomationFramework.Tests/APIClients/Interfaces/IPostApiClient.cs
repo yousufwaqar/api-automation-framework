@@ -9,7 +9,7 @@ public interface IPostApiClient
     Task<RestResponse<List<PostResponse>>> GetPostsAsync();
     Task<RestResponse<PostResponse>> GetPostAsync(int postId);
     Task<RestResponse<List<PostResponse>>> GetPostsByUserAsync(int userId);
-    Task<RestResponse<CreatePostResponse>> CreatePostAsync(CreatePostRequest request);
-    Task<RestResponse<CreatePostResponse>> UpdatePostAsync(int postId, CreatePostRequest request);
+    Task<RestResponse<PostResponse>> CreatePostAsync(CreatePostRequest request);
+    Task<RestResponse<PostResponse>> UpdatePostAsync(int postId, CreatePostRequest request);
     Task<RestResponse> DeletePostAsync(int postId);
 }

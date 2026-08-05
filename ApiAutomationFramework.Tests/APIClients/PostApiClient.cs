@@ -36,20 +36,20 @@ public class PostApiClient : BaseApiClient, IPostApiClient
         return await ExecuteAsync<List<PostResponse>>(request);
     }
 
-    public async Task<RestResponse<CreatePostResponse>> CreatePostAsync(CreatePostRequest createRequest)
+    public async Task<RestResponse<PostResponse>> CreatePostAsync(CreatePostRequest createRequest)
     {
         var request = CreateRequest(ApiEndpoints.Posts.Create, Method.Post);
         request.AddJsonBody(createRequest);
-        return await ExecuteAsync<CreatePostResponse>(request);
+        return await ExecuteAsync<PostResponse>(request);
     }
 
-    public async Task<RestResponse<CreatePostResponse>> UpdatePostAsync(
+    public async Task<RestResponse<PostResponse>> UpdatePostAsync(
         int postId, CreatePostRequest updateRequest)
     {
         var request = CreateRequest(ApiEndpoints.Posts.Update, Method.Put);
         request.AddUrlSegment("id", postId.ToString());
         request.AddJsonBody(updateRequest);
-        return await ExecuteAsync<CreatePostResponse>(request);
+        return await ExecuteAsync<PostResponse>(request);
     }
 
     public async Task<RestResponse> DeletePostAsync(int postId)
