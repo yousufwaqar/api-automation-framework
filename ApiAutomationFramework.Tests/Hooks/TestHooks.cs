@@ -1,7 +1,10 @@
 ﻿using ApiAutomationFramework.APIClients.Base;
 using ApiAutomationFramework.APIClients.Interfaces;
+using ApiAutomationFramework.Configuration;
+using ApiAutomationFramework.Constants;
 using ApiAutomationFramework.Utilities;
 using Reqnroll;
+using Reqnroll.UnitTestProvider;
 using Serilog;
 using Serilog.Context;
 
@@ -14,19 +17,36 @@ public class TestHooks
     private readonly IUserApiClient _userApiClient;
     private readonly IPostApiClient _postApiClient;
     private readonly ReportUtility _reportUtility;
+    private readonly IEnvironmentManager _environmentManager;
+    private readonly IUnitTestRuntimeProvider _unitTestRuntimeProvider;
     private readonly ILogger _logger;
 
     public TestHooks(
         ScenarioContext scenarioContext,
         IUserApiClient userApiClient,
         IPostApiClient postApiClient,
-        ReportUtility reportUtility)
+        ReportUtility reportUtility,
+        IEnvironmentManager environmentManager,
+        IUnitTestRuntimeProvider unitTestRuntimeProvider)
     {
         _scenarioContext = scenarioContext;
         _userApiClient = userApiClient;
         _postApiClient = postApiClient;
         _reportUtility = reportUtility;
+        _environmentManager = environmentManager;
+        _unitTestRuntimeProvider = unitTestRuntimeProvider;
         _logger = Log.ForContext<TestHooks>();
+    }
+
+    [BeforeScenario(Order = 0)]
+    public void SkipScenarioInProduction()
+    {
+        if (_environmentManager.IsProduction() &&
+            _scenarioContext.ScenarioInfo.Tags.Contains(TestTags.SkipInProduction))
+        {
+            _unitTestRuntimeProvider.TestIgnore(
+                $"Scenario '{_scenarioContext.ScenarioInfo.Title}' is skipped in the Production environment.");
+        }
     }
 
     [BeforeScenario(Order = 1)]
@@ -54,7 +74,10 @@ public class TestHooks
     [AfterScenario(Order = 1)]
     public void AfterScenario()
     {
-        var startTime = (DateTime)_scenarioContext[ScenarioContextKeys.StartTime];
+        // StartTime may be missing if an earlier hook aborted the scenario (e.g. a skip).
+        var startTime = _scenarioContext.TryGetValue(ScenarioContextKeys.StartTime, out DateTime start)
+            ? start
+            : DateTime.UtcNow;
         var duration = DateTime.UtcNow - startTime;
         var status = _scenarioContext.TestError == null ? "PASSED" : "FAILED";
 

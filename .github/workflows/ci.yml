@@ -61,10 +61,10 @@ jobs:
           dotnet test \
             --no-restore \
             --configuration Release \
+            --filter "Category=smoke" \
             --logger "trx;LogFileName=smoke-results.trx" \
             --logger "console;verbosity=detailed" \
-            --results-directory ./TestResults \
-            -- Reqnroll.Filter="@smoke"
+            --results-directory ./TestResults
         working-directory: ./ApiAutomationFramework.Tests
         env:
           TEST_ENVIRONMENT: ${{ env.TEST_ENVIRONMENT }}
@@ -100,9 +100,9 @@ jobs:
           dotnet test \
             --no-restore \
             --configuration Release \
+            --filter "Category=${{ matrix.test-group }}" \
             --logger "trx;LogFileName=${{ matrix.test-group }}-results.trx" \
-            --results-directory ./TestResults \
-            -- Reqnroll.Filter="@${{ matrix.test-group }}"
+            --results-directory ./TestResults
         working-directory: ./ApiAutomationFramework.Tests
         env:
           TEST_ENVIRONMENT: ${{ env.TEST_ENVIRONMENT }}

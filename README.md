@@ -50,15 +50,15 @@ Production-ready API test automation framework built with .NET 9, Reqnroll, Rest
 |----------|------------|
 | Language | C# 13 |
 | Runtime | .NET 9 |
-| BDD | Reqnroll 2.2.0 |
-| Test Runner | xUnit 2.9.2 |
-| HTTP Client | RestSharp 112.1.0 |
-| Assertions | FluentAssertions 6.12.2 |
-| JSON | Newtonsoft.Json 13.0.3 |
-| Logging | Serilog 4.2.0 |
-| Resilience | Polly 8.5.1 |
-| Data Generation | Bogus 35.6.1 |
-| Schema Validation | NJsonSchema 11.1.0 |
+| BDD | Reqnroll 3.3.4 |
+| Test Runner | xUnit 2.9.3 |
+| HTTP Client | RestSharp 114.0.0 |
+| Assertions | FluentAssertions 8.10.0 |
+| JSON | Newtonsoft.Json 13.0.4 |
+| Logging | Serilog 4.4.0 |
+| Resilience | Polly 8.7.0 |
+| Data Generation | Bogus 35.6.5 |
+| Schema Validation | NJsonSchema 11.6.1 |
 | CI/CD | GitHub Actions |
 
 ## Project Structure

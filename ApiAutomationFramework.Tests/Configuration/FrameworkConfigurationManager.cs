@@ -28,6 +28,14 @@ public class FrameworkConfigurationManager : IConfigurationManager
 
         _settings = new AppSettings();
         configuration.Bind(_settings);
+
+        // TEST_ENVIRONMENT selects the config file AND the active environment,
+        // so the framework can react to it (e.g. skip scenarios tagged @skipInProduction).
+        var testEnvironment = System.Environment.GetEnvironmentVariable("TEST_ENVIRONMENT");
+        if (!string.IsNullOrWhiteSpace(testEnvironment))
+        {
+            _settings.Environment = testEnvironment;
+        }
     }
 
     public AppSettings Settings => _settings;
