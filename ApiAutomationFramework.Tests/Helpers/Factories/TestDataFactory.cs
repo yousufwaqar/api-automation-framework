@@ -43,7 +43,7 @@ public class TestDataFactory : ITestDataFactory
     {
         return new CreateUserRequest
         {
-            Name = "O'Brien-Smith <script>alert('xss')</script>",
+            Name = "O'Brien-Smith \u00e9\u00f1\u00fc",
             Job = "Sr. Engineer & Team Lead"
         };
     }
