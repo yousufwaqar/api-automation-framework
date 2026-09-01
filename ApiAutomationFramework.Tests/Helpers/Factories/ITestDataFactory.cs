@@ -11,6 +11,7 @@ public interface ITestDataFactory
     CreateUserRequest CreateValidUser();
     CreateUserRequest CreateUserWithLongName();
     CreateUserRequest CreateUserWithSpecialCharacters();
+    CreateUserRequest CreateXssPayloadUser();
     CreateUserRequest CreateInvalidUser();
     List<CreateUserRequest> CreateBulkUsers(int count);
 

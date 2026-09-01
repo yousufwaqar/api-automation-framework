@@ -73,6 +73,15 @@ public class AdvancedPatternsStepDefinitions
             _createUserRequest.Name);
     }
 
+    [Given("I create a user with XSS payload using the factory")]
+    public void GivenICreateUserWithXssPayloadUsingFactory()
+    {
+        _createUserRequest = _testDataFactory.CreateXssPayloadUser();
+        _scenarioContext["CreateUserRequest"] = _createUserRequest;
+        _logger.Information("Factory created user with XSS payload: Name={Name}",
+            _createUserRequest.Name);
+    }
+
     // ═══════════════════════════════════════════════════
     // BUILDER PATTERN STEPS
     // ═══════════════════════════════════════════════════

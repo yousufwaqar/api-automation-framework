@@ -25,6 +25,13 @@ Feature: Advanced Design Patterns Demonstration
         Then the response status code should be 201
         And the response should contain the created user
 
+    @factory @negative @regression
+    Scenario: Create user with XSS payload is rejected by API
+        Given I create a user with XSS payload using the factory
+        When I send a POST request to create the user using the prepared request
+        Then the response status code should be 403
+        And the response body should be empty or contain error info
+
     # ═══════════════════════════════════════════════════
     # FACADE PATTERN SCENARIOS
     # ═══════════════════════════════════════════════════

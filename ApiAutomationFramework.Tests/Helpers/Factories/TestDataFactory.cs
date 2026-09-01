@@ -43,8 +43,17 @@ public class TestDataFactory : ITestDataFactory
     {
         return new CreateUserRequest
         {
-            Name = "O'Brien-Smith <script>alert('xss')</script>",
+            Name = "O'Brien-Smith-Delgado",
             Job = "Sr. Engineer & Team Lead"
+        };
+    }
+
+    public CreateUserRequest CreateXssPayloadUser()
+    {
+        return new CreateUserRequest
+        {
+            Name = "<script>alert('xss')</script>",
+            Job = "<img src=x onerror=alert(1)>"
         };
     }
 
