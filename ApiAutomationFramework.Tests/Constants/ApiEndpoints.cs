@@ -13,11 +13,11 @@ public static class ApiEndpoints
 
     public static class Posts
     {
-        public const string GetAll = "/posts";
-        public const string GetById = "/posts/{id}";
-        public const string Create = "/posts";
-        public const string Update = "/posts/{id}";
-        public const string Delete = "/posts/{id}";
+        public const string GetAll = "posts";
+        public const string GetById = "posts/{id}";
+        public const string Create = "posts";
+        public const string Update = "posts/{id}";
+        public const string Delete = "posts/{id}";
     }
 
     public static class Authentication

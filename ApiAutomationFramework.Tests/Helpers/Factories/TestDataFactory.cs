@@ -48,6 +48,15 @@ public class TestDataFactory : ITestDataFactory
         };
     }
 
+    public CreateUserRequest CreateXssPayloadUser()
+    {
+        return new CreateUserRequest
+        {
+            Name = "<script>alert('xss')</script>",
+            Job = "<img src=x onerror=alert(1)>"
+        };
+    }
+
     public CreateUserRequest CreateInvalidUser()
     {
         return new CreateUserRequest
